@@ -8,8 +8,6 @@ import os
 #from transformers import pipeline
 
 #openai.api_key = os.getenv("OPENAI_API_KEY")
-#openai.api_key = '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'
-openai.api_key = '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'
 # Define the available joke types
 joke_types = {
     "Pun": "pun",
