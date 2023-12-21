@@ -1,17 +1,21 @@
 import streamlit as st
 import openai
+import urllib.parse
+import webbrowser
+import streamlit.components.v1 as components
 import os
 
 #from transformers import pipeline
 
 #openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = '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'
-
+#openai.api_key = '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'
+openai.api_key = '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'
 # Define the available joke types
 joke_types = {
     "Pun": "pun",
     "One-liner": "one_liner",
-    "Haiku": "haiku"
+    "Haiku": "haiku",
+    "Short story": "short_story",
 }
 
 # Define the available joke settings
@@ -26,6 +30,8 @@ joke_subjects = {
     "Science": "science",
     "Politics": "politics",
     "Hollywood": "hollywood",
+    "Food": "food",
+    "Sports": "sports",
 }
 
 #generator = pipeline('text-generation', model='gpt2')
@@ -41,7 +47,7 @@ def main():
     joke_subject= st.selectbox("Select joke subject:", list(joke_subjects.keys()))
 
     # Select joke settings
-    joke_setting = st.selectbox("Select joke setting:", list(joke_settings.keys()))
+    joke_setting = st.selectbox("Select joke rating:", list(joke_settings.keys()))
 
     # Generate joke button
     if st.button("Generate Joke"):
@@ -52,6 +58,31 @@ def main():
 
         # Display the joke response
         st.write(joke_response)
+
+         # Save the joke to the session state
+        if 'joke_history' not in st.session_state:
+            st.session_state['joke_history'] = []
+        st.session_state['joke_history'].append(joke_response)
+        
+        # Add rating feature
+        rating = st.radio("Rate the joke:", ('Thumbs Up', 'Thumbs Down'))
+        if rating == 'Thumbs Up':
+            st.write('You liked the joke!')
+        else:
+            st.write('You did not like the joke.')
+
+         # Twitter share button
+        if st.button("Share on Twitter"):
+            tweet_text = urllib.parse.quote(f"Check out this joke: {joke_response}")
+            twitter_url = f"https://twitter.com/intent/tweet?text={tweet_text}"
+            st.markdown(f'<a href="{twitter_url}" target="_blank">Click here to tweet!</a>', unsafe_allow_html=True)
+            webbrowser.open_new_tab(f"https://twitter.com/intent/tweet?text={tweet_text}")
+
+    # Display the joke history
+    if 'joke_history' in st.session_state:
+        st.subheader("Joke History")
+        for joke in reversed(st.session_state['joke_history']):
+            st.write(joke + "\n\n")
 
 # Function to generate joke using GPT-3 or other LLM
 def generate_joke(prompt):
